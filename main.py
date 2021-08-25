@@ -9,14 +9,14 @@ from dotenv import load_dotenv, find_dotenv
 app = Flask(__name__)
 api = Api(app)
 
-#test part
+#test to see if the api is running
 @app.route('/')
 def hello_world():
     return 'Hello world!'
 
-load_env(find_dotenv())
 
 #authentification and headers
+load_dotenv(find_dotenv())
 def auth():
     return os.getenv('TOKEN') #token is the api key
 
@@ -24,23 +24,38 @@ def create_headers(bearer_token):
     headers = {"Authorization": "Bearer {}".format(bearer_token)}
     return headers
 
+#corresponding variables
+bearer_token = auth()
+headers = create_headers(bearer_token)
 
-def create_url(keyword, max_results = 30):
-    
+
+# creates the url for the requests
+def create_url_hashtag(keyword, max_results = 30):
     search_url = "https://api.twitter.com/2/tweets/search/recent" #recent search endpoint
 
-                    #'start_time': start_date,
-                    #'end_time': end_date,
     query_params = {'query': keyword,
                     'max_results': max_results,
                     'expansions': 'author_id,in_reply_to_user_id,geo.place_id',
                     'tweet.fields': 'id,text,author_id,in_reply_to_user_id,geo,conversation_id,created_at,lang,public_metrics,referenced_tweets,reply_settings,source',
                     'user.fields': 'id,name,username,created_at,description,public_metrics,verified',
                     'place.fields': 'full_name,id,country,country_code,geo,name,place_type',
-                    'next_token': {}}
+                    'next_token': {}} #indicates if more results are available or not
     return (search_url, query_params)
 
-    
+# def create_url_user(username, max_results = 30):
+#     search_url = "https://api.twitter.com/2/tweets/search/recent" #recent search endpoint
+
+#     query_params = {'query': keyword,
+#                     'max_results': max_results,
+#                     'expansions': 'author_id,in_reply_to_user_id,geo.place_id',
+#                     'tweet.fields': 'id,text,author_id,in_reply_to_user_id,geo,conversation_id,created_at,lang,public_metrics,referenced_tweets,reply_settings,source',
+#                     'user.fields': 'id,name,username,created_at,description,public_metrics,verified',
+#                     'place.fields': 'full_name,id,country,country_code,geo,name,place_type',
+#                     'next_token': {}} #indicates if more results are available or not
+#     return (search_url, query_params)
+
+
+# connect to the twitter endpoints
 def connect_to_endpoint(url, headers, params, next_token = None):
     params['next_token'] = next_token   #params object received from create_url function
     response = requests.request("GET", url, headers = headers, params = params)
@@ -49,26 +64,34 @@ def connect_to_endpoint(url, headers, params, next_token = None):
         raise Exception(response.status_code, response.text)
     return response.json()
 
-
-#test parameters
-bearer_token = auth()
-headers = create_headers(bearer_token)
-keyword = "python"
-#start_time = "2021-03-01T00:00:00.000Z"
-#end_time = "2021-03-31T00:00:00.000Z"
-max_results = 15
-
-url = create_url(keyword, max_results)
-
-json_response = connect_to_endpoint(url[0], headers, url[1])
-
 class Hashtags(Resource):
-    # methods go here
-    pass
+    #keyword = "python"
+    #max_results = 15
+
+    def get(self):
+        parser = reqparse.RequestParser()  # initialize parser
+        
+        parser.add_argument('hashtag', required=True)  # parse each arg
+        parser.add_argument('limit', required=False)
+        args = parser.parse_args()
+
+        keyword = args['hashtag']
+        max_results = args['limit']
+
+        url = create_url_hashtag(keyword, max_results) # url[0]: endpoint, url[1]: parameters
+        json_response = connect_to_endpoint(url[0], headers, url[1])
+   
+        
+        return {'tweets': json_response}, 200  # return data and 200 OK code
 
 
 class Users(Resource):
-    # methods go here
+    # username = "twitter"
+    # max_results = 15
+
+    # url = create_url_user(keyword, max_results) #url[0]: endpoint, url[1]: parameters
+
+    # json_response = connect_to_endpoint(url[0], headers, url[1])
     pass
 
 
