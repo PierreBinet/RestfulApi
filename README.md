@@ -6,6 +6,8 @@
  This Restful Api is capable of handling two GET requests:
  a search of Tweets by hashtags, and one by users.\
  IMPORTANT: Since this project is based on the Twitter API V2, please make that you have developer access to it.
+ 
+#### EDIT: my developper access to the twitter API was removed early in the project ("job application" must not be enough to get access), meaning that the project could not be tested...
 
 ### Setup
 Please be sure to install all the required libraries of the import section:\
