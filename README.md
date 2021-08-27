@@ -28,7 +28,7 @@ The developed API contains two endpoints:
 1. _Hashtag_ allows to search for tweets by keyword\
 The request syntax is GET http://localhost:xxxx/hashtags/keyword=yyyyyy?limit=40
 
-2. _User_ allows to search for tweets by author username\
+2. _User_ allows to search for tweets by (author) username\
 The request syntax is GET http://localhost:xxxx/hashtags/user_name=zzzzzz?limit=35 \
 
 With xxxx the port used by Flask for the API (default should be 5000), yyyyyy a keyword and zzzzzz a username.\
